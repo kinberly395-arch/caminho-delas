@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caminho Delas | Segurança e informação</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--navy:#193442;--pink:#d98ca5;--rose:#f8e9ee;--ink:#263943;--muted:#687981;--paper:#fbf9f8;--line:#e8e3e1;--green:#398466;--yellow:#bd842b;--red:#b94f59;--blue:#5369a7}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--paper);color:var(--ink)}
+header{background:var(--navy);color:white;padding:16px 5%;display:flex;align-items:center;justify-content:space-between;gap:18px;position:sticky;top:0;z-index:1000}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:13px;background:#f0c8d5;color:var(--navy);display:grid;place-items:center;font-size:23px;font-weight:bold}
+.brand strong{display:block;letter-spacing:1.5px;font-size:18px}.brand small{color:#e9cbd5;font-size:11px}
+nav{display:flex;gap:7px;flex-wrap:wrap}nav button{border:0;background:transparent;color:#eaf0f2;padding:10px 12px;border-radius:9px;cursor:pointer;font-weight:600}nav button:hover,nav button.active{background:#315365;color:white}
+main{max-width:1160px;margin:auto;padding:30px 22px 55px}.screen{display:none}.screen.active{display:block}
+.hero{background:linear-gradient(120deg,#193442,#31566a);color:white;border-radius:22px;padding:48px 42px;display:grid;grid-template-columns:1.4fr .8fr;gap:25px;align-items:center;overflow:hidden}
+.eyebrow{color:#f0bdcd;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:bold}.hero h1{font-size:clamp(32px,5vw,52px);line-height:1.08;margin:12px 0}.hero p{color:#e0e9ec;line-height:1.7;max-width:590px}.hero-art{height:210px;border:1px solid #63808d;border-radius:18px;background:repeating-linear-gradient(35deg,transparent 0 32px,#466675 33px 39px),repeating-linear-gradient(125deg,#274957 0 35px,#365d6c 36px 42px);display:grid;place-items:center;font-size:75px;color:#f2cbd7}
+.btn{border:0;border-radius:10px;padding:12px 17px;font-weight:bold;cursor:pointer;background:var(--pink);color:#382532}.btn.secondary{background:white;border:1px solid var(--line);color:var(--ink)}.btn.dark{background:var(--navy);color:white}.btn:disabled{opacity:.5;cursor:not-allowed}
+.section-title{margin:30px 0 15px}.section-title h2{margin:0 0 7px;font-size:25px}.section-title p,.muted{color:var(--muted);line-height:1.55}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:20px}.card .symbol{font-size:25px}.card h3{margin:10px 0 7px}.card p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}
+.notice{background:#fff6e8;border:1px solid #f0dfc4;padding:13px 15px;border-radius:11px;color:#715629;font-size:13px;line-height:1.5;margin:17px 0}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:17px 0}.toolbar input,.toolbar select,input,textarea,select{font:inherit}
+input,textarea,select{width:100%;padding:12px;border:1px solid #d9dfe0;border-radius:9px;background:white;color:var(--ink)}
+.toolbar input{max-width:300px}.toolbar select{width:auto;min-width:180px}
+.map-layout{display:grid;grid-template-columns:1.55fr .8fr;gap:16px}.mapbox{background:white;padding:10px;border:1px solid var(--line);border-radius:15px}#map{height:490px;border-radius:10px;z-index:1}.side{display:flex;flex-direction:column;gap:12px}.legend{display:grid;gap:10px}.legend span{display:flex;align-items:center;gap:9px;font-size:13px}.dot{width:11px;height:11px;border-radius:50%;display:inline-block}.street{border:1px solid var(--line);border-radius:11px;padding:13px;background:white}.street strong{display:block;margin-bottom:5px}.street small{color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-weight:bold;font-size:13px}.help{font-size:12px;color:var(--muted);line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:white;border:1px solid var(--line);padding:17px;border-radius:13px}.stat b{font-size:26px;display:block}.stat span{font-size:12px;color:var(--muted)}
+.table-wrap{overflow:auto;background:white;border:1px solid var(--line);border-radius:13px}table{border-collapse:collapse;width:100%;min-width:650px}th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line);font-size:13px}th{background:#f5f1f0;color:#53636a}td button{margin:2px}
+.pill{display:inline-block;border-radius:30px;padding:5px 9px;font-size:11px;font-weight:bold;background:#f4ead8;color:#87601e}.pill.approved{background:#e4f2eb;color:#28734f}.pill.pending{background:#fff0d8;color:#8a621d}
+footer{background:var(--navy);color:#e5edf0;padding:22px 5%;text-align:center;font-size:12px;line-height:1.6}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+@media(max-width:800px){header{align-items:flex-start;flex-direction:column}nav{width:100%}nav button{padding:8px}.hero{grid-template-columns:1fr;padding:30px 23px}.hero-art{height:125px}.cards{grid-template-columns:1fr}.map-layout{grid-template-columns:1fr}#map{height:380px}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){main{padding:20px 13px 40px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.stats{grid-template-columns:1fr}nav button{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">♀</div><div><strong>CAMINHO DELAS</strong><small>Informação para caminhos mais acolhedores</small></div></div>
+ <nav aria-label="Menu principal">
+  <button class="active" data-screen="inicio">Início</button>
+  <button data-screen="mapa">Mapa</button>
+  <button data-screen="relato">Registrar relato</button>
+  <button data-screen="ruas">Informações</button>
+  <button data-screen="admin">Administração</button>
+ </nav>
+</header>
+<main>
+<section id="inicio" class="screen active">
+ <div class="hero">
+  <div><div class="eyebrow">Tecnologia • Comunidade • Cidadania</div><h1>Seu caminho merece atenção.</h1><p>Uma plataforma demonstrativa para visualizar informações sobre iluminação pública, condições das ruas e relatos comunitários. Conhecer o espaço público é um passo para pedir melhorias.</p><button class="btn" onclick="showScreen('mapa')">Explorar o mapa →</button></div>
+  <div class="hero-art" aria-hidden="true">⌖</div>
+ </div>
+ <div class="section-title"><h2>O que você encontra aqui?</h2><p>Informações organizadas para apoiar a comunidade.</p></div>
+ <div class="cards">
+  <article class="card"><div class="symbol">💡</div><h3>Iluminação</h3><p>Identificação de trechos com iluminação insuficiente ou necessidade de manutenção.</p></article>
+  <article class="card"><div class="symbol">📍</div><h3>Relatos comunitários</h3><p>Registro de problemas no espaço público, sujeito à análise antes de aparecer no mapa.</p></article>
+  <article class="card"><div class="symbol">🗺️</div><h3>Consulta do bairro</h3><p>Visualização de pontos informados e filtros por categoria.</p></article>
+ </div>
+ <div class="notice"><b>Atenção:</b> este é um protótipo escolar. Os pontos apresentados são fictícios e não representam ocorrências reais. O mapa não classifica ruas como seguras ou perigosas e não substitui orientações das autoridades.</div>
+</section>
+
+<section id="mapa" class="screen">
+ <div class="section-title"><h2>Mapa de informações</h2><p>Explore os pontos demonstrativos e selecione uma categoria.</p></div>
+ <div class="toolbar">
+  <input id="searchStreet" placeholder="Pesquisar rua (ex.: Rua das Flores)" aria-label="Pesquisar rua">
+  <select id="filterType" aria-label="Filtrar categoria"><option value="todos">Todas as categorias</option><option value="iluminacao">Iluminação insuficiente</option><option value="ocorrencia">Relato de ocorrência</option><option value="infraestrutura">Infraestrutura</option><option value="iluminada">Iluminação informada como adequada</option></select>
+  <button class="btn secondary" onclick="resetMapFilters()">Limpar filtros</button>
+ </div>
+ <div class="map-layout">
+  <div class="mapbox"><div id="map" role="application" aria-label="Mapa demonstrativo com marcadores"></div></div>
+  <aside class="side">
+   <div class="card"><h3>Legenda</h3><div class="legend">
+    <span><i class="dot" style="background:#bd842b"></i> Iluminação insuficiente</span>
+    <span><i class="dot" style="background:#b94f59"></i> Relato de ocorrência</span>
+    <span><i class="dot" style="background:#5369a7"></i> Infraestrutura</span>
+    <span><i class="dot" style="background:#398466"></i> Iluminação informada como adequada</span>
+   </div></div>
+   <div class="card"><h3>Sobre os dados</h3><p class="muted">Os marcadores são exemplos fictícios para demonstrar o funcionamento. Em uma versão real, cada informação precisará de fonte, data e processo de verificação.</p></div>
+   <div class="card"><h3>Quer contribuir?</h3><p class="muted">Envie uma observação para análise da equipe responsável.</p><button class="btn dark" onclick="showScreen('relato')">Registrar informação</button></div>
+  </aside>
+ </div>
+</section>
+
+<section id="relato" class="screen">
+ <div class="section-title"><h2>Registrar uma observação</h2><p>Informe uma condição do espaço público. Não inclua nomes, fotos de pessoas ou dados pessoais.</p></div>
+ <form id="reportForm" class="card">
+  <div class="form-grid">
+   <div class="field"><label for="category">Tipo de informação *</label><select id="category" required><option value="">Selecione</option><option value="iluminacao">Iluminação insuficiente</option><option value="ocorrencia">Relato de ocorrência</option><option value="infraestrutura">Problema de infraestrutura</option><option value="iluminada">Iluminação informada como adequada</option></select></div>
+   <div class="field"><label for="street">Rua ou referência aproximada *</label><input id="street" required maxlength="100" placeholder="Ex.: Rua das Flores, próximo à praça"></div>
+   <div class="field"><label for="date">Data em que observou *</label><input id="date" type="date" required></div>
+   <div class="field"><label for="source">Como a informação foi obtida? *</label><select id="source" required><option value="">Selecione</option><option>Observação pessoal do espaço</option><option>Relato de morador(a)</option><option>Fonte pública oficial</option><option>Outra fonte identificada</option></select></div>
+   <div class="field full"><label for="description">Descrição objetiva *</label><textarea id="description" rows="4" required maxlength="500" placeholder="Descreva o problema sem identificar pessoas."></textarea><span class="help">Até 500 caracteres. Não registre acusações contra pessoas ou detalhes que identifiquem vítimas.</span></div>
+   <div class="field full"><label><input id="consent" type="checkbox" required style="width:auto"> Confirmo que não incluí dados pessoais e que a informação poderá ser analisada pela moderação.</label></div>
+  </div>
+  <div class="notice">O envio cria apenas um registro local neste protótipo. Ele ficará pendente e não será publicado automaticamente no mapa.</div>
+  <button class="btn dark" type="submit">Enviar para análise</button>
+  <p id="formMessage" class="help" role="status"></p>
+ </form>
+</section>
+
+<section id="ruas" class="screen">
+ <div class="section-title"><h2>Informações das ruas</h2><p>Exemplos de fichas de informação. Os dados abaixo são fictícios.</p></div>
+ <div id="streetCards" class="cards"></div>
+ <div class="notice">Uma ficha de rua deve indicar quando a informação foi coletada, sua origem e se foi verificada. A ausência de relatos não significa que um local seja seguro.</div>
+</section>
+
+<section id="admin" class="screen">
+ <div class="section-title"><h2>Painel administrativo</h2><p>Área demonstrativa para revisar os relatos recebidos. Em um sistema real, esta tela deve exigir autenticação e permissões.</p></div>
+ <div class="stats">
+  <div class="stat"><b id="totalCount">0</b><span>Relatos recebidos</span></div>
+  <div class="stat"><b id="pendingCount">0</b><span>Aguardando análise</span></div>
+  <div class="stat"><b id="approvedCount">0</b><span>Aprovados para exibição</span></div>
+ </div>
+ <div class="section-title"><h2>Fila de análise</h2><p>Revise o conteúdo antes de aprovar. Não aprove denúncias não verificadas como fatos.</p></div>
+ <div class="table-wrap"><table><thead><tr><th>Categoria</th><th>Local</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead><tbody id="adminRows"></tbody></table></div>
+ <p class="help">Os dados ficam apenas na memória desta página e podem ser apagados ao atualizar o navegador.</p>
+</section>
+</main>
+<footer>CAMINHO DELAS • Projeto demonstrativo de educação tecnológica<br>Informação comunitária com responsabilidade. Em situações de emergência, procure os serviços oficiais.</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const screens=[...document.querySelectorAll('.screen')];
+function showScreen(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));if(id==='mapa'&&map){setTimeout(()=>map.invalidateSize(),100)}if(id==='admin')renderAdmin();if(id==='ruas')renderStreets();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
+const samplePoints=[
+ {type:'iluminacao',title:'Iluminação insuficiente (exemplo)',street:'Rua das Flores',desc:'Ponto demonstrativo para indicar necessidade de avaliação da iluminação.',lat:-23.1608,lng:-49.9735},
+ {type:'ocorrencia',title:'Relato comunitário (exemplo)',street:'Rua Paraná',desc:'Marcador fictício. Não representa ocorrência real nem registro policial.',lat:-23.1630,lng:-49.9702},
+ {type:'infraestrutura',title:'Infraestrutura (exemplo)',street:'Rua Sete de Setembro',desc:'Exemplo de calçada que precisa de manutenção.',lat:-23.1587,lng:-49.9692},
+ {type:'iluminada',title:'Iluminação informada como adequada (exemplo)',street:'Avenida Brasil',desc:'Informação ilustrativa, ainda sem verificação.',lat:-23.1617,lng:-49.9770}
+];
+const colors={iluminacao:'#bd842b',ocorrencia:'#b94f59',infraestrutura:'#5369a7',iluminada:'#398466'};
+const labels={iluminacao:'Iluminação insuficiente',ocorrencia:'Relato de ocorrência',infraestrutura:'Infraestrutura',iluminada:'Iluminação informada como adequada'};
+let reports=[],map=null,markers=[];
+function initMap(){
+ if(!window.L)return;
+ map=L.map('map').setView([-23.1605,-49.9735],15);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(map);
+ renderMarkers();
+}
+function allPoints(){return [...samplePoints,...reports.filter(r=>r.status==='Aprovado').map(r=>({...r,lat:-23.1605,lng:-49.9735,title:labels[r.type]+' (relato aprovado)'}))]}
+function renderMarkers(){
+ if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];
+ const q=(document.getElementById('searchStreet')?.value||'').toLowerCase(),f=document.getElementById('filterType')?.value||'todos';
+ allPoints().filter(p=>(f==='todos'||p.type===f)&&p.street.toLowerCase().includes(q)).forEach(p=>{
+  const marker=L.circleMarker([p.lat,p.lng],{radius:9,color:'#fff',weight:2,fillColor:colors[p.type],fillOpacity:.95}).addTo(map);
+  marker.bindPopup('<b>'+escapeHtml(p.title)+'</b><br>'+escapeHtml(p.street)+'<br><small>'+escapeHtml(p.desc)+'</small>');markers.push(marker);
+ });
+}
+function resetMapFilters(){document.getElementById('searchStreet').value='';document.getElementById('filterType').value='todos';renderMarkers()}
+document.getElementById('searchStreet').addEventListener('input',renderMarkers);document.getElementById('filterType').addEventListener('change',renderMarkers);
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.getElementById('reportForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const r={id:Date.now(),type:document.getElementById('category').value,street:document.getElementById('street').value.trim(),date:document.getElementById('date').value,source:document.getElementById('source').value,desc:document.getElementById('description').value.trim(),status:'Pendente'};
+ reports.push(r);e.target.reset();document.getElementById('formMessage').textContent='Observação registrada no protótipo e enviada para a fila de análise.';renderAdmin();
+});
+function renderAdmin(){
+ const rows=document.getElementById('adminRows');if(!rows)return;
+ document.getElementById('totalCount').textContent=reports.length;document.getElementById('pendingCount').textContent=reports.filter(r=>r.status==='Pendente').length;document.getElementById('approvedCount').textContent=reports.filter(r=>r.status==='Aprovado').length;
+ rows.innerHTML=reports.length?reports.map(r=>`<tr><td>${labels[r.type]}</td><td>${escapeHtml(r.street)}</td><td>${escapeHtml(r.date)}</td><td><span class="pill ${r.status==='Aprovado'?'approved':'pending'}">${r.status}</span></td><td>${r.status==='Pendente'?`<button class="btn" onclick="setStatus(${r.id},'Aprovado')">Aprovar</button><button class="btn secondary" onclick="setStatus(${r.id},'Rejeitado')">Rejeitar</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Nenhum relato recebido neste protótipo.</td></tr>';
+}
+function setStatus(id,status){const r=reports.find(x=>x.id===id);if(r)r.status=status;renderAdmin();renderStreets();renderMarkers()}
+function renderStreets(){
+ const host=document.getElementById('streetCards');if(!host)return;
+ const approved=reports.filter(r=>r.status==='Aprovado');
+ const data=[...samplePoints,...approved];
+ host.innerHTML=data.map(p=>`<article class="card"><div class="symbol">📍</div><h3>${escapeHtml(p.street)}</h3><p><b>${labels[p.type]}</b></p><p>${escapeHtml(p.desc)}</p><p class="help">Exemplo demonstrativo • consulte a origem e a data antes de usar informações reais.</p></article>`).join('');
+}
+if(window.L)initMap();else document.getElementById('map').innerHTML='<p class="empty">Não foi possível carregar o mapa. Verifique sua conexão com a internet.</p>';
+renderAdmin();renderStreets();
+</script>
+</body>
+</html>
